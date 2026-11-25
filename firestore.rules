@@ -1,0 +1,299 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             (!('photoUrl' in data) || (data.photoUrl is string && data.photoUrl.size() <= 500)) &&
+             (!('activeCharacterId' in data) || (data.activeCharacterId is string && data.activeCharacterId.size() >= 1 && data.activeCharacterId.size() <= 128)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCharacter(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 50 &&
+             data.race is string && data.race.size() >= 1 && data.race.size() <= 40 &&
+             data.characterClass is string && data.characterClass.size() >= 1 && data.characterClass.size() <= 40 &&
+             data.title is string && data.title.size() <= 60 &&
+             data.level is int && data.level >= 1 && data.level <= 100 &&
+             data.alignment is string && data.alignment.size() >= 1 && data.alignment.size() <= 30 &&
+             data.biography is string && data.biography.size() <= 1000 &&
+             data.avatarKey is string && data.avatarKey.size() >= 1 && data.avatarKey.size() <= 40 &&
+             data.accentColorHex is string && data.accentColorHex.size() >= 7 && data.accentColorHex.size() <= 9 &&
+             data.accentColorHex.matches('^#[0-9A-Fa-f]{6,8}$') &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidServer(data) {
+      return data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 &&
+             data.ownerName is string && data.ownerName.size() >= 1 && data.ownerName.size() <= 60 &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 60 &&
+             data.genre is string && data.genre.size() >= 1 && data.genre.size() <= 40 &&
+             data.description is string && data.description.size() <= 400 &&
+             data.visibility in ['public', 'private'] &&
+             data.inviteCode is string && data.inviteCode.size() >= 6 && data.inviteCode.size() <= 12 &&
+             data.inviteCode.matches('^[A-Z0-9]+$') &&
+             data.bannerKey is string && data.bannerKey.size() >= 1 && data.bannerKey.size() <= 40 &&
+             data.memberCount is int && data.memberCount >= 1 && data.memberCount <= 50 &&
+             data.memberUids is list && data.memberUids.size() >= 1 && data.memberUids.size() <= 50 &&
+             data.memberUids[0] is string &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidServerMember(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.playerName is string && data.playerName.size() >= 1 && data.playerName.size() <= 60 &&
+             data.characterId is string && data.characterId.size() >= 1 && data.characterId.size() <= 128 &&
+             data.characterName is string && data.characterName.size() >= 1 && data.characterName.size() <= 50 &&
+             data.characterRace is string && data.characterRace.size() >= 1 && data.characterRace.size() <= 40 &&
+             data.characterClass is string && data.characterClass.size() >= 1 && data.characterClass.size() <= 40 &&
+             data.characterTitle is string && data.characterTitle.size() <= 60 &&
+             data.characterAvatarKey is string && data.characterAvatarKey.size() >= 1 && data.characterAvatarKey.size() <= 40 &&
+             data.characterAccentHex is string && data.characterAccentHex.size() >= 7 && data.characterAccentHex.size() <= 9 &&
+             data.characterAccentHex.matches('^#[0-9A-Fa-f]{6,8}$') &&
+             data.role in ['owner', 'member'] &&
+             (!('joinedWithCode' in data) || (data.joinedWithCode is string && data.joinedWithCode.size() <= 12)) &&
+             data.joinedAt is timestamp && data.joinedAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMessage(data) {
+      return data.serverId is string && data.serverId.size() >= 1 && data.serverId.size() <= 128 &&
+             data.senderUid is string && data.senderUid.size() >= 1 && data.senderUid.size() <= 128 &&
+             data.characterId is string && data.characterId.size() >= 1 && data.characterId.size() <= 128 &&
+             data.characterName is string && data.characterName.size() >= 1 && data.characterName.size() <= 50 &&
+             data.characterRace is string && data.characterRace.size() >= 1 && data.characterRace.size() <= 40 &&
+             data.characterClass is string && data.characterClass.size() >= 1 && data.characterClass.size() <= 40 &&
+             data.characterAvatarKey is string && data.characterAvatarKey.size() >= 1 && data.characterAvatarKey.size() <= 40 &&
+             data.characterAccentHex is string && data.characterAccentHex.size() >= 7 && data.characterAccentHex.size() <= 9 &&
+             data.characterAccentHex.matches('^#[0-9A-Fa-f]{6,8}$') &&
+             data.messageType in ['dialogue', 'action', 'ooc', 'roll'] &&
+             data.content is string && data.content.size() >= 1 && data.content.size() <= 1500 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidServerInvite(data) {
+      return data.inviteCode is string && data.inviteCode.size() >= 6 && data.inviteCode.size() <= 12 &&
+             data.inviteCode.matches('^[A-Z0-9]+$') &&
+             data.serverId is string && data.serverId.size() >= 1 && data.serverId.size() <= 128 &&
+             data.serverName is string && data.serverName.size() >= 2 && data.serverName.size() <= 60 &&
+             data.genre is string && data.genre.size() >= 1 && data.genre.size() <= 40 &&
+             data.visibility in ['public', 'private'] &&
+             data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get, list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'displayName', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'displayName', 'photoUrl', 'activeCharacterId', 'createdAt', 'updatedAt']) &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoUrl', 'activeCharacterId', 'updatedAt']);
+
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+
+      match /characters/{characterId} {
+        allow get, list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(characterId) &&
+                         request.auth.uid == userId &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'name', 'race', 'characterClass', 'title', 'level', 'alignment', 'biography', 'avatarKey', 'accentColorHex', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'name', 'race', 'characterClass', 'title', 'level', 'alignment', 'biography', 'avatarKey', 'accentColorHex', 'createdAt', 'updatedAt']) &&
+                         isValidCharacter(incoming());
+
+        allow update: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(characterId) &&
+                         request.auth.uid == userId &&
+                         isValidCharacter(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'race', 'characterClass', 'title', 'level', 'alignment', 'biography', 'avatarKey', 'accentColorHex', 'updatedAt']);
+
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(characterId) && request.auth.uid == userId;
+      }
+    }
+
+    match /servers/{serverId} {
+      allow get: if isSignedIn() &&
+                    isValidId(serverId) &&
+                    (existing().visibility == 'public' ||
+                     request.auth.uid in existing().memberUids ||
+                     existing().ownerId == request.auth.uid);
+
+      allow list: if isSignedIn() &&
+                     (existing().visibility == 'public' ||
+                      request.auth.uid in existing().memberUids ||
+                      existing().ownerId == request.auth.uid);
+
+      allow create: if isSignedIn() &&
+                       isValidId(serverId) &&
+                       incoming().ownerId == request.auth.uid &&
+                       incoming().memberCount == 1 &&
+                       incoming().memberUids.size() == 1 &&
+                       incoming().memberUids[0] == request.auth.uid &&
+                       incoming().keys().hasAll(['ownerId', 'ownerName', 'name', 'genre', 'description', 'visibility', 'inviteCode', 'bannerKey', 'memberCount', 'memberUids', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['ownerId', 'ownerName', 'name', 'genre', 'description', 'visibility', 'inviteCode', 'bannerKey', 'memberCount', 'memberUids', 'createdAt', 'updatedAt']) &&
+                       isValidServer(incoming()) &&
+                       existsAfter(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid)) &&
+                       existsAfter(/databases/$(database)/documents/server_invites/$(incoming().inviteCode));
+
+      allow update: if isSignedIn() &&
+                       isValidId(serverId) &&
+                       isValidServer(incoming()) &&
+                       incoming().ownerId == existing().ownerId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().inviteCode == existing().inviteCode && (
+                         (request.auth.uid == existing().ownerId &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'genre', 'description', 'visibility', 'bannerKey', 'updatedAt'])) ||
+                         (!(request.auth.uid in existing().memberUids) &&
+                          request.auth.uid in incoming().memberUids &&
+                          existing().memberUids.size() < 50 &&
+                          incoming().memberUids.size() == existing().memberUids.size() + 1 &&
+                          incoming().memberUids.hasAll(existing().memberUids) &&
+                          incoming().memberCount == existing().memberCount + 1 &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['memberUids', 'memberCount', 'updatedAt']) &&
+                          existsAfter(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid)) &&
+                          (existing().visibility == 'public' ||
+                           getAfter(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid)).data.joinedWithCode == existing().inviteCode)) ||
+                         (request.auth.uid in existing().memberUids &&
+                          request.auth.uid != existing().ownerId &&
+                          !(request.auth.uid in incoming().memberUids) &&
+                          incoming().memberUids.size() == existing().memberUids.size() - 1 &&
+                          existing().memberUids.hasAll(incoming().memberUids) &&
+                          incoming().memberCount == existing().memberCount - 1 &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['memberUids', 'memberCount', 'updatedAt']) &&
+                          !existsAfter(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid)))
+                       );
+
+      allow delete: if isSignedIn() && isValidId(serverId) && existing().ownerId == request.auth.uid;
+
+      match /members/{memberUid} {
+        allow get, list: if isSignedIn() &&
+                           (request.auth.uid == memberUid ||
+                            exists(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid)));
+
+        allow create: if isSignedIn() &&
+                         isValidId(serverId) &&
+                         isValidId(memberUid) &&
+                         request.auth.uid == memberUid &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'playerName', 'characterId', 'characterName', 'characterRace', 'characterClass', 'characterTitle', 'characterAvatarKey', 'characterAccentHex', 'role', 'joinedAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'playerName', 'characterId', 'characterName', 'characterRace', 'characterClass', 'characterTitle', 'characterAvatarKey', 'characterAccentHex', 'role', 'joinedWithCode', 'joinedAt', 'updatedAt']) &&
+                         isValidServerMember(incoming()) &&
+                         (
+                           (incoming().role == 'owner' &&
+                            getAfter(/databases/$(database)/documents/servers/$(serverId)).data.ownerId == request.auth.uid) ||
+                           (incoming().role == 'member' &&
+                            exists(/databases/$(database)/documents/servers/$(serverId)) &&
+                            request.auth.uid in getAfter(/databases/$(database)/documents/servers/$(serverId)).data.memberUids &&
+                            (get(/databases/$(database)/documents/servers/$(serverId)).data.visibility == 'public' ||
+                             incoming().joinedWithCode == get(/databases/$(database)/documents/servers/$(serverId)).data.inviteCode))
+                         );
+
+        allow update: if isSignedIn() &&
+                         isValidId(serverId) &&
+                         isValidId(memberUid) &&
+                         request.auth.uid == memberUid &&
+                         isValidServerMember(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().role == existing().role &&
+                         incoming().joinedAt == existing().joinedAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['playerName', 'characterId', 'characterName', 'characterRace', 'characterClass', 'characterTitle', 'characterAvatarKey', 'characterAccentHex', 'updatedAt']);
+
+        allow delete: if isSignedIn() &&
+                         isValidId(serverId) &&
+                         isValidId(memberUid) &&
+                         (request.auth.uid == memberUid ||
+                          get(/databases/$(database)/documents/servers/$(serverId)).data.ownerId == request.auth.uid);
+      }
+
+      match /messages/{messageId} {
+        allow get, list: if isSignedIn() &&
+                           exists(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid));
+
+        allow create: if isSignedIn() &&
+                         isValidId(serverId) &&
+                         isValidId(messageId) &&
+                         incoming().serverId == serverId &&
+                         incoming().senderUid == request.auth.uid &&
+                         incoming().keys().hasAll(['serverId', 'senderUid', 'characterId', 'characterName', 'characterRace', 'characterClass', 'characterAvatarKey', 'characterAccentHex', 'messageType', 'content', 'createdAt']) &&
+                         incoming().keys().hasOnly(['serverId', 'senderUid', 'characterId', 'characterName', 'characterRace', 'characterClass', 'characterAvatarKey', 'characterAccentHex', 'messageType', 'content', 'createdAt']) &&
+                         isValidMessage(incoming()) &&
+                         exists(/databases/$(database)/documents/servers/$(serverId)/members/$(request.auth.uid));
+
+        allow update: if false;
+
+        allow delete: if isSignedIn() &&
+                         isValidId(serverId) &&
+                         isValidId(messageId) &&
+                         (existing().senderUid == request.auth.uid ||
+                          get(/databases/$(database)/documents/servers/$(serverId)).data.ownerId == request.auth.uid);
+      }
+    }
+
+    match /server_invites/{inviteCode} {
+      allow get: if isSignedIn() && isValidId(inviteCode);
+      allow list: if false;
+
+      allow create: if isSignedIn() &&
+                       isValidId(inviteCode) &&
+                       incoming().ownerId == request.auth.uid &&
+                       incoming().inviteCode == inviteCode &&
+                       incoming().keys().hasAll(['inviteCode', 'serverId', 'serverName', 'genre', 'visibility', 'ownerId', 'createdAt']) &&
+                       incoming().keys().hasOnly(['inviteCode', 'serverId', 'serverName', 'genre', 'visibility', 'ownerId', 'createdAt']) &&
+                       isValidServerInvite(incoming()) &&
+                       existsAfter(/databases/$(database)/documents/servers/$(incoming().serverId));
+
+      allow update: if isSignedIn() &&
+                       isValidId(inviteCode) &&
+                       existing().ownerId == request.auth.uid &&
+                       isValidServerInvite(incoming()) &&
+                       incoming().ownerId == existing().ownerId &&
+                       incoming().inviteCode == existing().inviteCode &&
+                       incoming().serverId == existing().serverId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['serverName', 'genre', 'visibility']);
+
+      allow delete: if isSignedIn() && isValidId(inviteCode) && existing().ownerId == request.auth.uid;
+    }
+  }
+}

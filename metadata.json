@@ -1,0 +1,6 @@
+{
+  "name": "LoreGuild",
+  "description": "Multiplayer tabletop and text roleplay app where players forge custom characters and join public or private story servers with real-time character chat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

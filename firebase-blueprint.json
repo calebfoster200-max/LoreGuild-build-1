@@ -1,0 +1,395 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile storing display info and active character preference.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the owner."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Player display name."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Optional avatar photo URL."
+        },
+        "activeCharacterId": {
+          "type": "string",
+          "description": "Optional ID of the user's preferred character."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": ["userId", "displayName", "createdAt", "updatedAt"]
+    },
+    "CharacterProfile": {
+      "title": "CharacterProfile",
+      "description": "Custom roleplay character authored and owned by a player.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Character name."
+        },
+        "race": {
+          "type": "string",
+          "description": "Character race or ancestry."
+        },
+        "characterClass": {
+          "type": "string",
+          "description": "Character class, archetype, or vocation."
+        },
+        "title": {
+          "type": "string",
+          "description": "Optional epithet or guild title."
+        },
+        "level": {
+          "type": "integer",
+          "description": "Character level (1-100)."
+        },
+        "alignment": {
+          "type": "string",
+          "description": "Moral or narrative alignment."
+        },
+        "biography": {
+          "type": "string",
+          "description": "Character backstory and traits."
+        },
+        "avatarKey": {
+          "type": "string",
+          "description": "Visual avatar preset key."
+        },
+        "accentColorHex": {
+          "type": "string",
+          "description": "Hex color tint for character nameplate."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "race",
+        "characterClass",
+        "title",
+        "level",
+        "alignment",
+        "biography",
+        "avatarKey",
+        "accentColorHex",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "RoleplayServer": {
+      "title": "RoleplayServer",
+      "description": "A public or private multiplayer roleplay room.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Creator Firebase Auth UID."
+        },
+        "ownerName": {
+          "type": "string",
+          "description": "Creator display name."
+        },
+        "name": {
+          "type": "string",
+          "description": "Server realm name."
+        },
+        "genre": {
+          "type": "string",
+          "description": "Roleplay setting or genre."
+        },
+        "description": {
+          "type": "string",
+          "description": "Premise, hooks, and table guidelines."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Whether the server is publicly discoverable or invite-only."
+        },
+        "inviteCode": {
+          "type": "string",
+          "description": "Unique uppercase alphanumeric invite code."
+        },
+        "bannerKey": {
+          "type": "string",
+          "description": "Banner art preset key."
+        },
+        "memberCount": {
+          "type": "integer",
+          "description": "Current number of active members."
+        },
+        "memberUids": {
+          "type": "array",
+          "description": "Bounded list (max 50) of member UIDs."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "ownerId",
+        "ownerName",
+        "name",
+        "genre",
+        "description",
+        "visibility",
+        "inviteCode",
+        "bannerKey",
+        "memberCount",
+        "memberUids",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ServerMember": {
+      "title": "ServerMember",
+      "description": "Active player membership and selected character inside a server.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Member Firebase Auth UID."
+        },
+        "playerName": {
+          "type": "string",
+          "description": "Player account name."
+        },
+        "characterId": {
+          "type": "string",
+          "description": "Selected character document ID."
+        },
+        "characterName": {
+          "type": "string",
+          "description": "Selected character name."
+        },
+        "characterRace": {
+          "type": "string",
+          "description": "Selected character race."
+        },
+        "characterClass": {
+          "type": "string",
+          "description": "Selected character class."
+        },
+        "characterTitle": {
+          "type": "string",
+          "description": "Selected character title."
+        },
+        "characterAvatarKey": {
+          "type": "string",
+          "description": "Selected character avatar preset key."
+        },
+        "characterAccentHex": {
+          "type": "string",
+          "description": "Selected character nameplate hex color."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["owner", "member"],
+          "description": "Server membership role."
+        },
+        "joinedWithCode": {
+          "type": "string",
+          "description": "Invite code supplied when joining a private server."
+        },
+        "joinedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when joining (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when switching character (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "playerName",
+        "characterId",
+        "characterName",
+        "characterRace",
+        "characterClass",
+        "characterTitle",
+        "characterAvatarKey",
+        "characterAccentHex",
+        "role",
+        "joinedAt",
+        "updatedAt"
+      ]
+    },
+    "RoleplayMessage": {
+      "title": "RoleplayMessage",
+      "description": "Real-time in-character, action, OOC, or dice-roll message inside a server.",
+      "type": "object",
+      "properties": {
+        "serverId": {
+          "type": "string",
+          "description": "Parent server document ID."
+        },
+        "senderUid": {
+          "type": "string",
+          "description": "Sender Firebase Auth UID."
+        },
+        "characterId": {
+          "type": "string",
+          "description": "Character ID used for this message."
+        },
+        "characterName": {
+          "type": "string",
+          "description": "Character name."
+        },
+        "characterRace": {
+          "type": "string",
+          "description": "Character race."
+        },
+        "characterClass": {
+          "type": "string",
+          "description": "Character class."
+        },
+        "characterAvatarKey": {
+          "type": "string",
+          "description": "Character avatar preset key."
+        },
+        "characterAccentHex": {
+          "type": "string",
+          "description": "Character nameplate hex color."
+        },
+        "messageType": {
+          "type": "string",
+          "enum": ["dialogue", "action", "ooc", "roll"],
+          "description": "Roleplay message category."
+        },
+        "content": {
+          "type": "string",
+          "description": "Message body."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on send (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "serverId",
+        "senderUid",
+        "characterId",
+        "characterName",
+        "characterRace",
+        "characterClass",
+        "characterAvatarKey",
+        "characterAccentHex",
+        "messageType",
+        "content",
+        "createdAt"
+      ]
+    },
+    "ServerInvite": {
+      "title": "ServerInvite",
+      "description": "Direct get-only invite lookup document keyed by invite code.",
+      "type": "object",
+      "properties": {
+        "inviteCode": {
+          "type": "string",
+          "description": "Uppercase alphanumeric invite code."
+        },
+        "serverId": {
+          "type": "string",
+          "description": "Target server document ID."
+        },
+        "serverName": {
+          "type": "string",
+          "description": "Target server name."
+        },
+        "genre": {
+          "type": "string",
+          "description": "Target server genre."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Server visibility."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Creator Firebase Auth UID."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "inviteCode",
+        "serverId",
+        "serverName",
+        "genre",
+        "visibility",
+        "ownerId",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user profile and active character preference."
+    },
+    "/users/{userId}/characters/{characterId}": {
+      "schema": { "$ref": "#/entities/CharacterProfile" },
+      "description": "Player-authored custom character profiles."
+    },
+    "/servers/{serverId}": {
+      "schema": { "$ref": "#/entities/RoleplayServer" },
+      "description": "Public and private multiplayer roleplay servers."
+    },
+    "/servers/{serverId}/members/{memberUid}": {
+      "schema": { "$ref": "#/entities/ServerMember" },
+      "description": "Active members and their selected characters within a server."
+    },
+    "/servers/{serverId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/RoleplayMessage" },
+      "description": "Real-time roleplay chat feed within a server."
+    },
+    "/server_invites/{inviteCode}": {
+      "schema": { "$ref": "#/entities/ServerInvite" },
+      "description": "Invite code lookup map for joining private or public servers by code."
+    }
+  }
+}
